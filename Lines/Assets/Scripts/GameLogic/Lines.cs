@@ -1,10 +1,11 @@
 public delegate void ShowBox(int i, int j, int ball);
 public delegate void PlayCut();
+
 public class Lines
 {
     public const int BTN_SIZE = 9;
     public const int IMG_SIZE = 7;
-    private const int ADD_BALLS = 3;
+    private const int ADD_BALLS = 6;
     private const int LINE_LENGTH = 4;
 
     private int[,] _map;
@@ -48,6 +49,7 @@ public class Lines
     private void MoveBall(int i, int j)
     {
         if (!_isBallSelected) return;
+        if (!CanMove(i, j)) return;
         SetMap(i, j, _map[_moveFrom.i, _moveFrom.j]);
         SetMap(_moveFrom.i, _moveFrom.j, 0);
         _isBallSelected = false;
@@ -136,6 +138,27 @@ public class Lines
             _marks[x, y] = true;
 
         return count;
+    }
+
+    private bool CanMove(int toI, int toJ)
+    {
+        _marks = new bool[BTN_SIZE, BTN_SIZE];
+        Walk(_moveFrom.i, _moveFrom.j, true);
+
+        return _marks[toI, toJ];
+    }
+
+    private void Walk(int i, int j, bool firstStart = false)
+    {
+        if (!firstStart)
+            if (!OnMap(i, j) || _map[i, j] > 0 || _marks[i, j])
+                return;
+
+        _marks[i, j] = true;
+        Walk(i + 1, j);
+        Walk(i, j + 1);
+        Walk(i, j - 1);
+        Walk(i - 1, j);
     }
 
     private bool IsGameOver()
